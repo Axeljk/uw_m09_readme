@@ -9,19 +9,20 @@ const CLI_SAVE_TO_PACKAGE = "-y";
 const args = process.argv.slice(2);
 const USE_VALUES_IN_PACKAGE = args.includes(CLI_USE_PACKAGE_VALUES);
 const SAVE_VALUES_TO_PACKAGE = args.includes(CLI_SAVE_TO_PACKAGE);
-const package = JSON.parse(fs.readFileSync("./package.json", "utf8"));
+var package;
 
 // Questions.
 const questions = [
 	{
 		type: "input",
-		message: "Does the project have a repository?",
-		name: "gitHub"
+		message: "What is your GitHub username?",
+		name: "gitHubProfile",
 	},
 	{
 		type: "input",
-		message: "What is your GitHub username?",
-		name: "gitHubUsername"
+		message: "What is the name of the repository for the project?\n\tLeave blank if none.",
+		name: "gitHubRepo",
+		when: (answers) => answers.gitHubUsername !== ""
 	},
 	{
 		type: "input",
@@ -48,11 +49,12 @@ const questions = [
 		type: "editor",
 		message: "Please describe how to use your project.",
 		name: "usage",
+		default: "To use, run the following command:\n\n\`\`\`node index.js\`\`\`"
 	},
 	{
 		type: "list",
 		message: "Select the license you're using.",
-		choices: ["MIT", "ISC"],
+		choices: ["MIT", "ISC", "UNLICENSED"],
 		name: "license"
 	},
 	{
@@ -63,7 +65,8 @@ const questions = [
 	{
 		type: "editor",
 		message: "How can someone contribute to this project?",
-		name: "contributing"
+		name: "contributing",
+		default: "All contributions are welcome!\nPlease review any open issue."
 	},
 	{
 		type: "editor",
@@ -76,29 +79,66 @@ const questions = [
 		message: "What modules are required?",
 		name: "dependencies"
 	}];
-const [gitHub, gitHubProfile, email, title, description, installation, usage, license, authors, contributing, tests, dependencies] = questions;
+const [gitHubProfile, gitHubRepo, email, title, description, installation, usage, license, authors, contributing, tests, dependencies] = questions;
 
 // Get info from package.json file.
 function getPackage() {
 	// Helper functions for evaluating package.json.
 	function removeQuestion(question) { questions.splice(questions.indexOf(question), 1); }
 	function addDefault(key, question) { question.default = package[key]; }
-	function checkPackageKey(key, question) {
-		if (key in package && package[key] !== "")
-			USE_VALUES_IN_PACKAGE ? removeQuestion(question) : addDefault(key, question);
+
+	// Read package.json file if it exists.
+	try {
+		package = JSON.parse(fs.readFileSync("./package.json", "utf8"));
+	} catch(err) {
+		package = null;
 	}
 
-	// Check the package.json for the following:
-	checkPackageKey("name", title);
-	checkPackageKey("description", description);
-	checkPackageKey("author", authors);
-	checkPackageKey("license", license);
-	checkPackageKey("scripts.test", tests);
-	checkPackageKey("repository", gitHub);
-	checkPackageKey("dependencies", dependencies);
+	// Check package.json for any details. Use them as defaults for prompts.
+	if (package !== null) {
+
+		// First check for repo info.
+		if ("repository" in package && package.repository !== "") {
+			let url;
+
+			if (typeof (package.repository) === "object")
+				url = package.repository.url.split("/");
+			else if (typeof(package.repository) === "string")
+				url = package.repository.split("/");
+			package.gitHubProfile = url[url.length - 2];
+			package.gitHubRepo = url[url.length - 1];
+			
+			USE_VALUES_IN_PACKAGE ? removeQuestion(gitHubProfile) : addDefault("gitHubProfile", gitHubProfile);
+			USE_VALUES_IN_PACKAGE ? removeQuestion(gitHubRepo) : addDefault("gitHubRepo", gitHubRepo);
+		}
+		// Check for author email.
+		if ("author" in package && package.author !== "") {
+			console.log("Has author");
+			if ("email" in package.author && package.author.email !== "")
+				USE_VALUES_IN_PACKAGE ? removeQuestion(email) : email.default = package.author.email;
+		}
+		// Project title. NPM packages seem to all be foo-bar-baz, even on GitHub.
+		if ("name" in package && package.name !== "")
+			USE_VALUES_IN_PACKAGE ? removeQuestion(title) : addDefault("name", title);
+		// Project description.
+		if ("description" in package && package.description !== "")
+			USE_VALUES_IN_PACKAGE ? removeQuestion(description) : addDefault("description", description);
+		if ("author" in package && package.author !== "") {
+			let contributors = [];
+			if (typeof package.author === "string")
+				contributors.push(package.author);
+			else if (typeof package.author === "object")
+				contributors.push(package.author.name);
+
+			if ("contributors" in package && package.contributors.length !== 0)
+				package.contributors.forEach((e) => contributors.push(e.name));
+
+			USE_VALUES_IN_PACKAGE ? removeQuestion(authors) : authors.default = contributors.join(", ");
+		}
+	}
 }
 
-// TODO: Create a function to write README file
+// Writes to ReadMe file.
 function writeToFile(fileName, data) {
 	fs.writeFile(fileName, toMarkdown(data), err => {
 		if (err) {
@@ -109,7 +149,7 @@ function writeToFile(fileName, data) {
 	});
 }
 
-// TODO: Create a function to initialize app
+// Called when program starts. 
 function init() {
 	// Grab package.json data.
 	getPackage();
@@ -117,16 +157,10 @@ function init() {
 	inquirer
 	.prompt(questions)
 	.then((answers) => {
-		writeToFile("README.md", answers);
+		writeToFile("./sample/README.md", answers);
 	})
-	.catch((error) => {
-		if (error.isTtyError) {
-			// Prompt couldn't be rendered in the current environment
-		} else {
-			// Something else went wrong
-		}
-	});
+	.catch((err) => console.error(err));
 }
 
-// Function call to initialize app
+// Function call to initialize app.
 init();

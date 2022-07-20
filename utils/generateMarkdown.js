@@ -25,6 +25,7 @@ ${data.description}
 * [Dependencies](#dependencies)
 * [Usage](#usage)
 * [License](#license)
+* [Contributors](#contributors)
 * [Contributing](#contributing)
 * [Tests](#tests)
 * [Questions](#questions)
@@ -42,13 +43,16 @@ ${data.usage}
 ## License
 ${data.license}
 
-## Contributing
+## Contributors
 ${data.authors}
+
+## Contributing
+$(data.contributing}
 
 ## Tests
 ${data.tests}
 
 ## Questions
-If you have any questions, open an issue or contact directly at [${data.email}](mailto:${data.email}). You can find more of my work at [${data.gitHubUsername}](https://www.github.com/${data.gitHubUsername}).`;
+If you have any questions, open an issue or contact directly at [${data.email}](mailto:${data.email}). You can find more of my work at [${data.gitHubProfile}](https://www.github.com/${data.gitHubProfile}).`;
 }
 module.exports = generateMarkdown;
