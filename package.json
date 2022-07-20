@@ -1,14 +1,22 @@
 {
-  "name": "ReadMe Generator",
+  "name": "readme-generator",
   "version": "1.0.0",
-  "description": "",
+  "description": "Generates a ReadMe from user input.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Axeljk",
-  "license": "ISC",
+  "author": {
+	"name": "Axeljk",
+	"email": "axeljkern@yahoo.com",
+	"url": "https://axeljk.com/"
+  },
+  "license": "MIT",
   "dependencies": {
     "inquirer": "^8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Axeljk/uw_m09_readme"
   }
 }
