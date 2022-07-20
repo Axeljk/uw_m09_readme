@@ -3,7 +3,7 @@
 [![badge](https://img.shields.io/github/license/Axeljk/uw_m09_readme)](https://www.github.com/Axeljk/uw_m09_readme/blob/main/license)
 
 ## Description
-Generates a ReadMe from user input.
+Generates a readme from user input. This very readme was created with this app.
 
 <details>
 <summary>Click to view table of contents</summary>
@@ -34,6 +34,8 @@ To use, run the following command:
 ```
 node index.js
 ```
+
+A video demonstrating it can be [found here](https://drive.google.com/file/d/1qyUvxjqNaN4YPTQv9YpvJx9Q-znduwse/view).
 
 Created files are stored in ```./sample```.
 
