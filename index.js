@@ -156,7 +156,12 @@ function writeToFile(fileName, data) {
 		data.title = package.name;
 	if (data.description == undefined && "description" in package)
 		data.description = package.description;
-	fs.writeFile(fileName, toMarkdown(data), err => {
+
+	// Make sure sample subfolder exists.
+	if (!fs.existsSync("./sample/"))
+		fs.mkdirSync("./sample/");
+
+	fs.writeFile("./sample/" + fileName, toMarkdown(data), err => {
 		if (err) {
 			console.error(err);
 		}
@@ -172,7 +177,7 @@ function init() {
 
 	inquirer
 	.prompt(questions)
-	.then((answers) => writeToFile("./sample/README.md", answers))
+	.then((answers) => writeToFile("README.md", answers))
 	.catch((err) => console.error(err));
 }
 
