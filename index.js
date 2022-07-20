@@ -43,13 +43,13 @@ const questions = [
 		type: "editor",
 		message: "Please detail your installation process.",
 		name: "installation",
-		default: `To install with the necessary dependencies, run the following command:\n\n \`\`\`npm i\`\`\``
+		default: `To install with the necessary dependencies, run the following command:\n\n \`\`\`\nnpm i\n\`\`\``
 	},
 	{
 		type: "editor",
 		message: "Please describe how to use your project.",
 		name: "usage",
-		default: "To use, run the following command:\n\n\`\`\`node index.js\`\`\`"
+		default: "To use, run the following command:\n\n\`\`\`\nnode index.js\n\`\`\`"
 	},
 	{
 		type: "list",
@@ -72,7 +72,7 @@ const questions = [
 		type: "editor",
 		message: "Are there any unit tests?",
 		name: "tests",
-		default: `To run tests, run the following command:\n\n\`\`\`npm test\`\`\``
+		default: `To run tests, run the following command:\n\n\`\`\`\nnpm test\n\`\`\``
 	},
 	{
 		type: "input",
@@ -107,13 +107,12 @@ function getPackage() {
 				url = package.repository.split("/");
 			package.gitHubProfile = url[url.length - 2];
 			package.gitHubRepo = url[url.length - 1];
-			
+
 			USE_VALUES_IN_PACKAGE ? removeQuestion(gitHubProfile) : addDefault("gitHubProfile", gitHubProfile);
 			USE_VALUES_IN_PACKAGE ? removeQuestion(gitHubRepo) : addDefault("gitHubRepo", gitHubRepo);
 		}
 		// Check for author email.
 		if ("author" in package && package.author !== "") {
-			console.log("Has author");
 			if ("email" in package.author && package.author.email !== "")
 				USE_VALUES_IN_PACKAGE ? removeQuestion(email) : email.default = package.author.email;
 		}
@@ -123,6 +122,7 @@ function getPackage() {
 		// Project description.
 		if ("description" in package && package.description !== "")
 			USE_VALUES_IN_PACKAGE ? removeQuestion(description) : addDefault("description", description);
+		// List of contributors.
 		if ("author" in package && package.author !== "") {
 			let contributors = [];
 			if (typeof package.author === "string")
@@ -135,30 +135,44 @@ function getPackage() {
 
 			USE_VALUES_IN_PACKAGE ? removeQuestion(authors) : authors.default = contributors.join(", ");
 		}
+		// List of dependencies.
+		if ("dependencies" in package && Object.keys(package.dependencies).length > 0) {
+			package.modules = [];
+			for (const [key, value] of Object.entries(package.dependencies))
+				package.modules.push(value);
+			USE_VALUES_IN_PACKAGE ? removeQuestion(dependencies) : addDefault(package.modules.join(" "), dependencies);
+		}
 	}
 }
 
 // Writes to ReadMe file.
 function writeToFile(fileName, data) {
+	// gitHubProfile, gitHubRepo, email, title, description, installation, usage, license, authors, contributing, tests, dependencies
+	if (data.gitHubProfile == undefined && "gitHubProfile" in package)
+		data.gitHubProfile = package.gitHubProfile;
+	if (data.gitHubRepo == undefined && "gitHubProfile" in package)
+		data.gitHubRepo = package.gitHubRepo;
+	if (data.title == undefined && "name" in package)
+		data.title = package.name;
+	if (data.description == undefined && "description" in package)
+		data.description = package.description;
 	fs.writeFile(fileName, toMarkdown(data), err => {
 		if (err) {
 			console.error(err);
 		}
 		// file written successfully
-		console.log("Readme successfully created.");
+		console.log(fileName + " successfully created.");
 	});
 }
 
-// Called when program starts. 
+// Called when program starts.
 function init() {
 	// Grab package.json data.
 	getPackage();
 
 	inquirer
 	.prompt(questions)
-	.then((answers) => {
-		writeToFile("./sample/README.md", answers);
-	})
+	.then((answers) => writeToFile("./sample/README.md", answers))
 	.catch((err) => console.error(err));
 }
 

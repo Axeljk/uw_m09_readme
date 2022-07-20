@@ -1,58 +1,76 @@
-// TODO: Create a function that returns a license badge based on which license is passed in
-// If there is no license, return an empty string
-function renderLicenseBadge(license) {}
+// License badge. Checks for no license.
+function renderLicenseBadge(data) {
+	if (data.license !== "UNLICENSED")
+		return `[![badge](https://img.shields.io/github/license/${data.gitHubProfile}/${data.gitHubRepo})](https://www.github.com/${data.gitHubProfile}/${data.gitHubRepo}/blob/main/license)\n\n`;
+	else
+		return "";
+}
 
-// TODO: Create a function that returns the license link
-// If there is no license, return an empty string
-function renderLicenseLink(license) {}
+// License section. Needs to check for no license.
+function renderLicenseSection(license) {
+	if (license !== "UNLICENSED")
+		return `## License\n${license}\n\n`;
+	else
+		return "";
+}
 
-// TODO: Create a function that returns the license section of README
-// If there is no license, return an empty string
-function renderLicenseSection(license) {}
+function renderTitle(data) {
+	return `# ${data.title}\n\n` + renderLicenseBadge(data);
+}
+function renderSection(header, data) {
+	return (data != "") ? `## ${header}\n${data}\n\n` : "";
+}
+function renderList(header, data) {
+	if (data != "") {
+		let list = `## ${header}`;
+		if (typeof data === "array") {
+			for (x in data)
+				list += "\n- " + x;
+		} else (typeof data === "string")
+			list += "\n- " + data.split(" ").join("\n- ");
+		return list + "\n\n";
+	} else
+		return "";
+}
+function renderTableOfContents(data) {
+	let table = `<details>\n<summary>Click to view table of contents</summary>\n\n## Table of Contents\n`;
 
-// TODO: Create a function to generate markdown for README
+	if (data.installation != "")
+		table += `* [Installation](#installation)\n`;
+	if (data.dependencies != "")
+		table += `* [Dependencies](#dependencies)\n`;
+	if (data.usage != "")
+		table += `* [Usage](#usage)\n`;
+	if (data.authors != "")
+		table += `* [Contributors](#contributors)\n`;
+	if (data.contributing != "")
+		table += `* [Contributing](#contributing)\n`;
+	if (data.tests != "")
+		table += `* [Tests](#tests)\n`;
+	if (data.license !== "UNLICENSED")
+		table += `* [License](#license)\n`;
+	table += `* [Questions](#questions)\n</details>\n\n`;
+
+	return table;
+}
+function renderQuestions(data) {
+	return `## Questions\nIf you have any questions, open an issue or contact directly at [${data.email}](mailto:${data.email}). You can find more of my work on [GitHub](https://www.github.com/${data.gitHubProfile}).`;
+}
+
+// Generates markdown for README
 function generateMarkdown(data) {
-	return `# ${data.title}
+	let readme = renderTitle(data);
+	readme += renderSection("Description", data.description);
+	readme += renderTableOfContents(data);
+	readme += renderSection("Installation", data.installation);
+	readme += renderList("Dependencies", data.dependencies);
+	readme += renderSection("Usage", data.usage);
+	readme += renderList("Contributors", data.authors);
+	readme += renderSection("Contributing", data.contributing);
+	readme += renderSection("Tests", data.tests);
+	readme += renderLicenseSection(data.license);
+	readme += renderQuestions(data);
 
-## Description
-${data.description}
-
-<details>
-<summary>Click to view table of contents</summary>
-
-## Table of Contents
-* [Installation](#installation)
-* [Dependencies](#dependencies)
-* [Usage](#usage)
-* [License](#license)
-* [Contributors](#contributors)
-* [Contributing](#contributing)
-* [Tests](#tests)
-* [Questions](#questions)
-</details>
-
-## Installation
-${data.installation}
-
-## Dependencies
-${data.dependencies}
-
-## Usage
-${data.usage}
-
-## License
-${data.license}
-
-## Contributors
-${data.authors}
-
-## Contributing
-$(data.contributing}
-
-## Tests
-${data.tests}
-
-## Questions
-If you have any questions, open an issue or contact directly at [${data.email}](mailto:${data.email}). You can find more of my work at [${data.gitHubProfile}](https://www.github.com/${data.gitHubProfile}).`;
+	return readme;
 }
 module.exports = generateMarkdown;
