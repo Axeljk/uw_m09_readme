@@ -7,9 +7,9 @@ function renderLicenseBadge(data) {
 }
 
 // License section. Needs to check for no license.
-function renderLicenseSection(license) {
-	if (license !== "UNLICENSED")
-		return `## License\n${license}\n\n`;
+function renderLicenseSection(data) {
+	if (data.license !== "UNLICENSED")
+		return `## License\nCopyright (c) ${data.gitHubProfile}. All rights reserved.\n\nLicensed under the [${data.license}](https://www.github.com/${data.gitHubProfile}/${data.gitHubRepo}/blob/main/license) license.\n\n`;
 	else
 		return "";
 }
@@ -68,7 +68,7 @@ function generateMarkdown(data) {
 	readme += renderList("Contributors", data.authors);
 	readme += renderSection("Contributing", data.contributing);
 	readme += renderSection("Tests", data.tests);
-	readme += renderLicenseSection(data.license);
+	readme += renderLicenseSection(data);
 	readme += renderQuestions(data);
 
 	return readme;

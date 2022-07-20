@@ -43,7 +43,9 @@ Created files are stored in ```./sample```.
 - Axeljk
 
 ## License
-MIT
+Copyright (c) Axeljk. All rights reserved.
+
+Licensed under the [MIT](https://www.github.com/Axeljk/uw_m09_readme/blob/main/license) license.
 
 ## Questions
 If you have any questions, open an issue or contact directly at [axeljkern@yahoo.com](mailto:axeljkern@yahoo.com). You can find more of my work on [GitHub](https://www.github.com/Axeljk).
